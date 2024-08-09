@@ -2,19 +2,35 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRouter from './routes/user.route.js';
+import authRouter from './routes/auth.route.js';
+
+
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URL).then(()=>{
-    console.log("connected to Mongodb");
-}).catch((err)=>{
-    console.log(err);
+const app = express();
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URL)
+    .then(() => {
+        console.log("Connected to MongoDB");
+    })
+    .catch((err) => {
+        console.error("Failed to connect to MongoDB", err);
+    });
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Use router for user-related routes
+app.use('/api/user', userRouter);
+app.use('/api/auth',authRouter);
+
+
+// Start the server
+app.listen(3000, () => {
+    console.log("Server is running on port 3000");
 });
 
-const app=express();
-
-
-app.listen(3000,()=>{
-    console.log("server is running on port 3000");
+app.get('/', (req, res) => {
+    res.send('Hello World');
 });
-
-app.use('/api/routes/user',userRouter)
